@@ -51,3 +51,17 @@ exports.deleteUser = async(req, res, next) => {
 
     next();
 }
+
+exports.addWorkspace = async(req, res, next) => {
+    try {
+        let newObj = {
+            name: req.body.name,
+            container: []
+        }
+    } catch (err) {
+        res.status(400).json({
+            status: 'failed',
+            data: err
+        })
+    }
+}
