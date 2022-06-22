@@ -54,10 +54,29 @@ exports.deleteUser = async(req, res, next) => {
 
 exports.addWorkspace = async(req, res, next) => {
     try {
+        const nameNewWorkspace = req.body.name;
+        const userId = req.body.id;
+
         let newObj = {
-            name: req.body.name,
+            name: nameNewWorkspace,
             container: []
         }
+
+
+        const userDocument = await Users.findById(userId);
+        if (userDocument.spaces.nameNewWorkspace) {
+            throw new Error("This workspace already exists");
+        } else {
+            userDocument.spaces.push(newObj);
+
+            await userDocument.save();
+
+            res.status(200).json({
+                status: "success",
+                data: `Inserted new workspace : ${nameNewWorkspace}`
+            })
+        }
+
     } catch (err) {
         res.status(400).json({
             status: 'failed',
