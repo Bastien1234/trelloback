@@ -84,3 +84,82 @@ exports.addWorkspace = async(req, res, next) => {
         })
     }
 }
+
+exports.deleteWorkspace = async(req, res, next) => {
+    try {
+        const wsToDelete = req.body.spaceName;
+        const mongooseDocument = await Users.findOne({email: req.body.email});
+        let newSpaces = [];
+        console.log(mongooseDocument)
+        mongooseDocument.spaces.forEach(el => {
+            if (el.name !== wsToDelete) {
+                newSpaces.push(el)
+            }
+        })
+        mongooseDocument.spaces = newSpaces;
+        mongooseDocument.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: `Sucessfully deleted document ${wsToDelete}`
+        })
+    } catch(e) {
+        console.log(e.message);
+
+        res.status(400).json({
+            status: 'failed',
+            message: `Error message : ${e.message}`
+        })
+    }
+    next();
+}
+
+exports.addContainer = async(req, res, next) => {
+    try {
+        const currentWorkspace = req.body.currentWorkspace;
+        const userId = req.body.id;
+        const containerName = req.body.containerName;
+
+        console.log("container name : ", containerName)
+
+
+        let newObj = {
+            title: containerName,
+            cards: []
+        }
+
+
+
+
+        const userDocument = await Users.findById(userId);
+        console.log(userDocument)
+
+        
+        userDocument.spaces.forEach(el => {
+            if (el.name === currentWorkspace) {
+                el.containers.push(newObj);
+            }
+        })
+
+        await userDocument.save();
+
+        res.status(200).json({
+            status: "success",
+            data: `Inserted new container : ${containerName}`,
+            check: userDocument
+        })
+        
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'failed',
+            data: err.message
+        })
+    }
+}
+
+
+
+
+
+
