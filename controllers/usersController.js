@@ -83,6 +83,8 @@ exports.addWorkspace = async(req, res, next) => {
             data: err
         })
     }
+
+    next();
 }
 
 exports.deleteWorkspace = async(req, res, next) => {
@@ -122,15 +124,10 @@ exports.addContainer = async(req, res, next) => {
 
         console.log("container name : ", containerName)
 
-
         let newObj = {
             title: containerName,
             cards: []
         }
-
-
-
-
         const userDocument = await Users.findById(userId);
         console.log(userDocument)
 
@@ -156,6 +153,50 @@ exports.addContainer = async(req, res, next) => {
             data: err.message
         })
     }
+
+    next();
+}
+
+exports.deleteContainer = async(req, res, next) => {
+    try {
+        const currentWorkspace = req.body.currentWorkspace;
+        const userId = req.body.id;
+        const containerName = req.body.containerName;
+
+        console.log("container name : ", containerName)
+
+        const userDocument = await Users.findById(userId);
+
+        // filter
+
+        
+        userDocument.spaces.forEach(el => {
+            if (el.name === currentWorkspace) {
+                let filtered = el.containers.filter(container => {
+                    container.title !== containerName
+                })
+
+                el.containers = filtered;
+            }
+        })
+
+        await userDocument.save();
+
+        res.status(200).json({
+            status: "success",
+            data: `Inserted new container : ${containerName}`,
+            check: userDocument
+        })
+        
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'failed',
+            data: err.message
+        })
+    }
+
+    next();
 }
 
 
