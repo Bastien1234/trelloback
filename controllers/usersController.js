@@ -163,20 +163,34 @@ exports.deleteContainer = async(req, res, next) => {
         const userId = req.body.id;
         const containerName = req.body.containerName;
 
-        console.log("container name : ", containerName)
+        console.log("Deleting container name : ", containerName)
 
         const userDocument = await Users.findById(userId);
 
         // filter
+        let filtered = [];
 
         
-        userDocument.spaces.forEach(el => {
-            if (el.name === currentWorkspace) {
-                let filtered = el.containers.filter(container => {
-                    container.title !== containerName
+        userDocument.spaces.forEach(space => {
+            if (space.name === currentWorkspace) {
+                console.log('currentWorkspace', space)
+                // let filtered = el.containers.filter(container => {
+                //     container.title !== containerName
+                // })
+                
+                console.log("1111 ------------------- ")
+                space.containers.forEach(el => {
+                    console.log("in containers --------------", el)
+                    if (el.title !== containerName) {
+                        filtered.push(el);
+                    }
                 })
 
-                el.containers = filtered;
+
+
+                space.containers = filtered;
+                console.log("setted filter")
+                console.log("filter : \n", space.containers)
             }
         })
 
@@ -184,7 +198,7 @@ exports.deleteContainer = async(req, res, next) => {
 
         res.status(200).json({
             status: "success",
-            data: `Inserted new container : ${containerName}`,
+            data: filtered,
             check: userDocument
         })
         
