@@ -213,6 +213,46 @@ exports.deleteContainer = async(req, res, next) => {
     next();
 }
 
+exports.addCard = async(req, res, next) => {
+    try {
+        const currentWorkspace = req.body.currentWorkspace;
+        const userId = req.body.id;
+        const containerName = req.body.containerName;
+        const cardName = req.body.cardName;
+
+        console.log("Adding card : ", cardName);
+
+        let newObj = {
+            title: containerName,
+            cards: []
+        }
+        const userDocument = await Users.findById(userId);
+        
+        userDocument.spaces.forEach(el => {
+            if (el.name === currentWorkspace) {
+                el.containers.push(newObj);
+            }
+        })
+
+        await userDocument.save();
+
+        res.status(200).json({
+            status: "success",
+            data: `Inserted new container : ${containerName}`,
+            check: userDocument
+        })
+        
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'failed',
+            data: err.message
+        })
+    }
+
+    next();
+}
+
 
 
 
